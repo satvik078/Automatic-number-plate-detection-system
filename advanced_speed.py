@@ -78,32 +78,32 @@ class AdvancedSpeedCalculator:
                 good_new = p1[st == 1]
                 good_old = p0[st == 1]
                 
-                if len(good_new) > 5:  # Need minimum points for reliable calculation
-                    # Calculate displacement
+                if len(good_new) > 5:  # minimum points for reliable calculation
+                    # Calculating displacement
                     displacement = np.mean(np.sqrt(
                         (good_new[:, 0] - good_old[:, 0])**2 + 
                         (good_new[:, 1] - good_old[:, 1])**2
                     ))
                     
-                    # Convert to real-world speed
+                    # Converting to real-world speed
                     distance_meters = displacement * self.meters_per_pixel
                     time_seconds = 1.0 / self.fps
                     speed_mps = distance_meters / time_seconds
                     speed_kmph = speed_mps * 3.6
                     
-                    # Store in tracking history
+                    # Storing tracking history
                     track_data = self.vehicle_tracks[vehicle_id]
                     track_data['positions'].append((x + w//2, y + h//2))
                     track_data['timestamps'].append(current_time)
                     track_data['speeds'].append(speed_kmph)
                     
-                    # Return smoothed speed
+                    # Returning smoothed speed
                     return self.get_smoothed_speed(vehicle_id)
         
-        # Store current frame for next iteration
+        # Storing current frame for next iteration
         self.prev_gray = current_gray.copy()
         
-        # Initialize tracking for new vehicle
+        # Initializing tracking for new vehicle
         track_data = self.vehicle_tracks[vehicle_id]
         track_data['positions'].append((x + w//2, y + h//2))
         track_data['timestamps'].append(current_time)
@@ -121,13 +121,13 @@ class AdvancedSpeedCalculator:
         track_data['timestamps'].append(current_time)
         
         if len(track_data['positions']) >= 2:
-            # Get last two positions
+            # last two positions
             pos1 = track_data['positions'][-2]
             pos2 = track_data['positions'][-1]
             time1 = track_data['timestamps'][-2]
             time2 = track_data['timestamps'][-1]
             
-            # Calculate displacement
+            # Calculating displacement
             pixel_distance = np.sqrt((pos2[0] - pos1[0])**2 + (pos2[1] - pos1[1])**2)
             time_diff = time2 - time1
             
@@ -149,7 +149,7 @@ class AdvancedSpeedCalculator:
         if len(speeds) == 0:
             return None
         
-        # Remove outliers (speeds > 200 km/h or < 0)
+        # Removing outliers (speeds > 200 km/h or < 0)
         valid_speeds = [s for s in speeds if 0 <= s <= 200]
         
         if not valid_speeds:
@@ -180,7 +180,7 @@ class AdvancedSpeedCalculator:
         # calculating centroid-based speed
         centroid_speed = self.calculate_centroid_speed(vehicle_bbox, vehicle_id)
         
-        #  optical flow if available and reasonable, otherwise use centroid
+        #  optical flow if available and reasonable, otherwise using centroid
         if optical_flow_speed is not None and 5 <= optical_flow_speed <= 150:
             return optical_flow_speed
         elif centroid_speed is not None and 5 <= centroid_speed <= 150:
