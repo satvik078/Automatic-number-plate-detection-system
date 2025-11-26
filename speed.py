@@ -9,9 +9,9 @@ class SpeedTracker:
         :param scale_factor: Conversion factor (pixels to meters).
         :param fps: Frame rate of the video (default: 30 FPS).
         """
-        self.scale_factor = scale_factor  # Convert pixels to meters
+        self.scale_factor = scale_factor  # Converting pixels to meters
         self.fps = fps
-        self.vehicle_positions = {}  # Stores vehicle positions with timestamps
+        self.vehicle_positions = {}  # Storeing vehicle positions with timestamps
 
     def track_vehicle(self, frame, vehicle_id, bbox):
         """
@@ -23,24 +23,24 @@ class SpeedTracker:
         :return: Speed in km/h (if measurable).
         """
         x, y, w, h = bbox
-        center = (x + w // 2, y + h // 2)  # Calculate center of the vehicle
+        center = (x + w // 2, y + h // 2)  # Calculating center of the vehicle
 
         current_time = time.time()
 
         if vehicle_id in self.vehicle_positions:
             prev_position, prev_time = self.vehicle_positions[vehicle_id]
 
-            # Calculate pixel displacement
+            # Calculating pixel displacement
             pixel_distance = ((center[0] - prev_position[0]) ** 2 + (center[1] - prev_position[1]) ** 2) ** 0.5
             real_distance = pixel_distance * self.scale_factor  # Convert to meters
 
             time_elapsed = current_time - prev_time
 
-            # Compute speed (m/s), then convert to km/h
+            # Computing speed (m/s), then converting to km/h
             speed_mps = real_distance / time_elapsed
             speed_kmph = speed_mps * 3.6  # Convert meters per second to km/h
 
-            # Update vehicle position
+            # Updating vehicle position
             self.vehicle_positions[vehicle_id] = (center, current_time)
 
             return round(speed_kmph, 2)

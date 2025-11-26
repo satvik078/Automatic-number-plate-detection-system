@@ -14,7 +14,7 @@ def test_static_image():
     """Test with a static image if available"""
     print("Testing static image recognition...")
     
-    # Try to capture a frame from the video for testing
+    # Trying to capture a frame from the video for testing
     cap = cv2.VideoCapture('6366_vehicle_transport_transportation_170609ADelhi017.mp4')
     ret, frame = cap.read()
     cap.release()
@@ -61,7 +61,7 @@ def test_ocr_preprocessing():
     """Test OCR preprocessing functions"""
     print("\nTesting OCR preprocessing...")
     
-    # Create sample plate-like images for testing
+    # Creating sample plate-like images for testing
     test_plates = [
         "DL01AB1234",  # Standard format
         "MH12CD5678",  # Different state
@@ -77,7 +77,7 @@ def test_ocr_preprocessing():
         print(f"Expected: {plate_text:12} | OCR Result: {result}")
 
 def test_speed_calculator():
-    """Test the new advanced speed calculator"""
+    """Testing the new advanced speed calculator"""
     print("\nTesting Advanced Speed Calculator...")
     
     from advanced_speed import AdvancedSpeedCalculator
@@ -85,7 +85,7 @@ def test_speed_calculator():
     speed_calc = AdvancedSpeedCalculator(fps=30, reference_distance_meters=25, reference_pixels=150)
     print(f"Speed calculator initialized with {speed_calc.meters_per_pixel:.4f} meters per pixel")
     
-    # Simulate vehicle movement
+    # Simulating vehicle movement
     bbox1 = (100, 200, 150, 100)  # x, y, w, h
     bbox2 = (120, 200, 150, 100)  # moved 20 pixels
     
@@ -96,31 +96,31 @@ def main():
     """Main test function"""
     print("=== Testing Enhanced ANPR System for Indian Number Plates ===")
     
-    # Test Indian plate validation
+    # Testing Indian plate validation
     test_indian_plate_validation()
     
-    # Test OCR preprocessing
+    # Testing OCR preprocessing
     test_ocr_preprocessing()
     
-    # Test speed calculator
+    # Testing speed calculator
     test_speed_calculator()
     
-    # Test static image recognition
+    # Testing static image recognition
     test_static_image()
     
     print("\n=== Test Complete ===")
-    print("\n🚀 NEW IMPROVEMENTS IMPLEMENTED:")
-    print("1. ✅ Indian Number Plate Pattern Validation")
-    print("2. ✅ Enhanced OCR with intelligent character corrections")
-    print("3. ✅ Advanced Speed Calculation using Optical Flow")
-    print("4. ✅ Optimized Frame Processing for Smoother Video")
-    print("5. ✅ Real-time Performance Improvements")
-    print("6. ✅ Better Visual Feedback and User Interface")
-    print("\n📋 INDIAN PLATE FORMATS SUPPORTED:")
+    print("\n NEW IMPROVEMENTS IMPLEMENTED:")
+    print("1. Indian Number Plate Pattern Validation")
+    print("2. Enhanced OCR with intelligent character corrections")
+    print("3. Advanced Speed Calculation using Optical Flow")
+    print("4. Optimized Frame Processing for Smoother Video")
+    print("5. Real-time Performance Improvements")
+    print("6.  Better Visual Feedback and User Interface")
+    print("\n INDIAN PLATE FORMATS SUPPORTED:")
     print("   • Standard: XX##XX#### (e.g., DL01AB1234)")
     print("   • New Format: XX#XX#### (e.g., DL7CA1234)")
     print("   • All Indian State Codes Validated")
-    print("\n⚡ PERFORMANCE FEATURES:")
+    print("\n PERFORMANCE FEATURES:")
     print("   • Frame skipping for smoother playback")
     print("   • Optimized processing pipeline")
     print("   • Real-time speed calculation")

@@ -3,7 +3,7 @@ import easyocr
 import numpy as np
 import re
 
-# Initialize EasyOCR with English language support
+# Initializing EasyOCR with English language support
 reader = easyocr.Reader(['en'])
 
 # Indian state codes for validation
@@ -14,23 +14,23 @@ INDIAN_STATE_CODES = [
 
 def preprocess_plate_image(image):
     """ Enhanced preprocessing for better OCR accuracy """
-    # Convert to grayscale
+    # Converting it to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
-    # Apply bilateral filter to reduce noise while preserving edges
+    # Applying bilateral filter to reduce noise while preserving edges
     filtered = cv2.bilateralFilter(gray, 9, 75, 75)
     
-    # Apply histogram equalization to improve contrast
+    # Applying histogram equalization to improve contrast
     equalized = cv2.equalizeHist(filtered)
     
-    # Apply Gaussian blur to smooth the image
+    # Applying Gaussian blur to smooth the image
     blurred = cv2.GaussianBlur(equalized, (3, 3), 0)
     
-    # Apply adaptive thresholding
+    # Applying adaptive thresholding
     thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
                                    cv2.THRESH_BINARY, 11, 2)
     
-    # Apply morphological operations to clean up the image
+    # Applying morphological operations to clean up the image
     kernel = np.ones((2, 2), np.uint8)
     morph = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
     morph = cv2.morphologyEx(morph, cv2.MORPH_OPEN, kernel)
@@ -43,9 +43,6 @@ def validate_indian_plate_pattern(text):
         return False
     
     # Indian number plate patterns:
-    # Old format: XX ## XX #### (10 chars) - e.g., DL 01 AB 1234
-    # New format: XX ## XX #### (10 chars) - e.g., DL 7C A3702 
-    # Some variants: XX ## X #### (9 chars)
     
     patterns = [
         r'^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$',  # Standard format: DL01AB1234
@@ -76,7 +73,7 @@ def format_indian_plate(text):
         if len(cleaned) == 10 and validate_indian_plate_pattern(cleaned):
             return cleaned
         elif len(cleaned) == 9:
-            # Try to add missing character for standard format
+            # Trying to add missing character for standard format
             state = cleaned[:2]
             if state in INDIAN_STATE_CODES:
                 return cleaned
@@ -88,10 +85,10 @@ def clean_text(text):
     if not text:
         return ""
     
-    # Remove special characters and keep only alphanumeric
+    # Removing special characters and keeping only alphanumeric
     cleaned = re.sub(r'[^A-Z0-9]', '', text.upper())
     
-    # Filter out very short results
+    # Filtering out very short results
     if len(cleaned) < 6:
         return ""
     
@@ -100,73 +97,70 @@ def clean_text(text):
         'O': '0', 'I': '1', 'S': '5', 'Z': '2', 'G': '6', 'B': '8', 'Q': '0'
     }
     
-    # Apply corrections more intelligently
+    # Applying corrections
     corrected = ""
     for i, char in enumerate(cleaned):
-        if i < 2:  # State code - should be letters
+        if i < 2:
             if char.isdigit():
-                # Convert common digit misreads back to letters
+                # Converting common digit misreads back to letters
                 digit_to_letter = {'0': 'O', '1': 'I', '5': 'S', '2': 'Z', '6': 'G', '8': 'B'}
                 corrected += digit_to_letter.get(char, char)
             else:
                 corrected += char
-        elif i < 4:  # District code - should be numbers
+        elif i < 4:  
             if char.isalpha() and char in corrections:
                 corrected += corrections[char]
             else:
                 corrected += char
-        elif i < 6:  # Series - should be letters
+        elif i < 6:
             if char.isdigit():
                 digit_to_letter = {'0': 'O', '1': 'I', '5': 'S', '2': 'Z', '6': 'G', '8': 'B'}
                 corrected += digit_to_letter.get(char, char)
             else:
                 corrected += char
-        else:  # Number - should be digits
+        else: 
             if char.isalpha() and char in corrections:
                 corrected += corrections[char]
             else:
                 corrected += char
     
-    # Format as Indian plate
+    # Formating as Indian plate
     formatted = format_indian_plate(corrected)
     
-    # Validate the final result
+    # Validating the final result
     if validate_indian_plate_pattern(formatted):
         return formatted
     
-    # Return cleaned text if pattern doesn't match but is reasonable length
+    # Returning cleaned text if pattern doesn't match
     return corrected if len(corrected) >= 6 else ""
 
 def recognize_text(image):
-    """ Enhanced text recognition with better preprocessing """
     try:
-        # Apply enhanced preprocessing
+        # Applying enhanced preprocessing
         processed_img = preprocess_plate_image(image)
         
-        # Resize to optimal size for OCR (maintain aspect ratio)
+        # Resizing to optimal size for OCR
         height, width = processed_img.shape
         target_height = 100
         target_width = int(width * (target_height / height))
         resized_img = cv2.resize(processed_img, (target_width, target_height))
         
-        # Try OCR with different configurations
         results = reader.readtext(resized_img, 
                                  allowlist='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
                                  width_ths=0.7,
                                  height_ths=0.7)
         
-        # Extract text with confidence filtering
+        # Extracting text with confidence filtering
         detected_texts = []
         for _, text, confidence in results:
-            if confidence > 0.5:  # Only keep high confidence results
+            if confidence > 0.5: 
                 cleaned = clean_text(text)
                 if cleaned:
                     detected_texts.append(cleaned)
         
-        # Join all detected text
+        # Joining all detected text
         final_text = "".join(detected_texts)
         
-        # If no good result, try with original grayscale image
         if not final_text:
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             gray_resized = cv2.resize(gray, (target_width, target_height))

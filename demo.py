@@ -59,7 +59,7 @@ def demo_video_processing():
         print("❌ Could not open video file")
         return
     
-    # Initialize components
+    # Initializing components
     findPlate = PlateFinder(minPlateArea=1500, maxPlateArea=25000)
     speed_calculator = AdvancedSpeedCalculator(fps=30)
     
@@ -72,7 +72,7 @@ def demo_video_processing():
     processed_frames = 0
     detections = 0
     
-    for frame_num in range(min(100, total_frames)):  # Process first 100 frames
+    for frame_num in range(min(100, total_frames)):  # Processing first 100 frames
         ret, frame = cap.read()
         
         if not ret:
@@ -80,7 +80,7 @@ def demo_video_processing():
             
         processed_frames += 1
         
-        # Process frame
+        # Processing frame
         possible_plates = findPlate.find_possible_plates(frame)
         
         if possible_plates is not None:
@@ -91,7 +91,7 @@ def demo_video_processing():
                     detections += 1
                     print(f"   ✅ Frame {frame_num:3d}: Detected {recognized_plate}")
         
-        # Show progress every 20 frames
+        # Showing progress every 20 frames
         if frame_num % 20 == 0:
             print(f"   📊 Processed {frame_num} frames...")
     

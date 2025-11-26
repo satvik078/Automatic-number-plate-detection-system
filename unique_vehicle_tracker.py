@@ -7,7 +7,7 @@ from datetime import datetime
 class UniqueVehicleTracker:
     def __init__(self, similarity_threshold=0.8, min_speed_samples=3):
         """
-        Track unique vehicles and detect each plate only once
+        Tracking unique vehicles and detect each plate only once
         
         :param similarity_threshold: Threshold for considering plates as same vehicle
         :param min_speed_samples: Minimum speed samples before finalizing speed
@@ -22,16 +22,16 @@ class UniqueVehicleTracker:
         self.position_history = defaultdict(list)
         
     def is_similar_plate(self, new_plate, existing_plates):
-        """Check if new plate is similar to any existing plate"""
+        """Checking if new plate is similar to any existing plate"""
         for existing_plate in existing_plates:
-            # Calculate similarity ratio
+            # Calculating similarity ratio
             similarity = self.calculate_similarity(new_plate, existing_plate)
             if similarity >= self.similarity_threshold:
                 return existing_plate
         return None
     
     def calculate_similarity(self, plate1, plate2):
-        """Calculate similarity between two plates using character matching"""
+        """Calculating similarity between two plates using character matching"""
         if len(plate1) != len(plate2):
             return 0.0
         
@@ -39,15 +39,15 @@ class UniqueVehicleTracker:
         return matches / len(plate1)
     
     def add_speed_sample(self, plate_number, speed):
-        """Add speed sample for a plate"""
+        """Adding speed sample for a plate"""
         if speed is not None and 5 <= speed <= 150:  # Valid speed range
             self.speed_data[plate_number].append(speed)
     
     def get_final_speed(self, plate_number):
-        """Get final averaged speed for a plate"""
+        """Getting final averaged speed for a plate"""
         speeds = self.speed_data[plate_number]
         if len(speeds) >= self.min_speed_samples:
-            # Remove outliers and calculate average
+            # Removing outliers and calculating average
             speeds_array = np.array(speeds)
             q75, q25 = np.percentile(speeds_array, [75, 25])
             iqr = q75 - q25
@@ -65,19 +65,19 @@ class UniqueVehicleTracker:
     
     def detect_vehicle(self, plate_number, bbox, frame_number, speed=None):
         """
-        Detect and track a unique vehicle
+        Detecting and track a unique vehicle
         
         Returns: (is_new_detection, vehicle_id, vehicle_info)
         """
-        # Check if this plate is similar to any existing plate
+        # Checking if this plate is similar to any existing plate
         similar_plate = self.is_similar_plate(plate_number, self.detected_plates.keys())
         
         if similar_plate:
-            # Update existing vehicle with speed data
+            # Updating existing vehicle with speed data
             vehicle_info = self.detected_plates[similar_plate]
             if speed is not None:
                 self.add_speed_sample(similar_plate, speed)
-                # Update speed if we have enough samples
+                # Updating speed if we have enough samples
                 final_speed = self.get_final_speed(similar_plate)
                 if final_speed is not None:
                     vehicle_info['final_speed'] = final_speed
@@ -101,7 +101,7 @@ class UniqueVehicleTracker:
                 'total_speed_samples': 0
             }
             
-            # Add initial speed sample if available
+            # Adding initial speed sample if available
             if speed is not None:
                 self.add_speed_sample(plate_number, speed)
                 vehicle_info['speed_status'] = f'Calculating... ({len(self.speed_data[plate_number])}/{self.min_speed_samples})'
@@ -111,7 +111,7 @@ class UniqueVehicleTracker:
             return True, self.vehicle_counter, vehicle_info
     
     def finalize_all_speeds(self):
-        """Finalize speeds for all detected vehicles"""
+        """Finalizing speeds for all detected vehicles"""
         for plate_number, vehicle_info in self.detected_plates.items():
             if vehicle_info['final_speed'] is None:
                 final_speed = self.get_final_speed(plate_number)
@@ -121,7 +121,7 @@ class UniqueVehicleTracker:
                 else:
                     speed_samples = len(self.speed_data[plate_number])
                     if speed_samples > 0:
-                        # Use average of available samples even if less than minimum
+                        # Using average of available samples even if less than minimum
                         vehicle_info['final_speed'] = round(np.mean(self.speed_data[plate_number]), 1)
                         vehicle_info['speed_status'] = f'Estimated from {speed_samples} samples'
                     else:
@@ -130,7 +130,7 @@ class UniqueVehicleTracker:
             vehicle_info['total_speed_samples'] = len(self.speed_data[plate_number])
     
     def get_summary(self):
-        """Get summary of all detected vehicles"""
+        """Getting summary of all detected vehicles"""
         self.finalize_all_speeds()
         
         summary = {
@@ -139,7 +139,7 @@ class UniqueVehicleTracker:
             'vehicles': []
         }
         
-        # Sort vehicles by detection order
+        # Sorting vehicles by detection order
         sorted_vehicles = sorted(
             self.detected_plates.values(),
             key=lambda x: x['vehicle_id']
@@ -159,5 +159,5 @@ class UniqueVehicleTracker:
         return summary
     
     def is_already_detected(self, plate_number):
-        """Check if a plate has already been detected"""
+        """Checking if a plate has already been detected"""
         return self.is_similar_plate(plate_number, self.detected_plates.keys()) is not None

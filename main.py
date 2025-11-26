@@ -15,7 +15,7 @@ def process_frame_optimized(frame, findPlate, speed_calculator, vehicle_tracker,
     """Optimized frame processing function with unique vehicle detection"""
     results = []
     
-    # Process for every frame for detection
+    # Processing every frame for detection
     possible_plates = findPlate.find_possible_plates(frame)
     
     if possible_plates is not None:
@@ -23,7 +23,7 @@ def process_frame_optimized(frame, findPlate, speed_calculator, vehicle_tracker,
             recognized_plate = recognize_text(plate_img)
             
             if recognized_plate and validate_indian_plate_pattern(recognized_plate):
-                # Get plate coordinates
+                # plate coordinates
                 plate_coords = findPlate.corresponding_area[i]
                 if plate_coords:
                     x, y = plate_coords
@@ -33,19 +33,19 @@ def process_frame_optimized(frame, findPlate, speed_calculator, vehicle_tracker,
                         min(frame.shape[1] - x, 250), min(frame.shape[0] - y, 150)
                     )
                     
-                    # Calculate speed 
+                    # Calculating speed 
                     vehicle_id = f"vehicle_{x}_{y}"  # Simple ID based on position
                     speed = speed_calculator.estimate_speed_hybrid(
                         frame, vehicle_bbox, vehicle_id
                     )
                     
-                    # Check if this is a new unique vehicle
+                    # Checking if this is a new unique vehicle
                     is_new, unique_id, vehicle_info = vehicle_tracker.detect_vehicle(
                         recognized_plate, vehicle_bbox, frame_count, speed
                     )
                     
                     if is_new:
-                        # Only add to results if it's a new detection
+                        # adding to results if it's a new detection
                         results.append({
                             'plate': recognized_plate,
                             'speed': speed,
@@ -58,7 +58,6 @@ def process_frame_optimized(frame, findPlate, speed_calculator, vehicle_tracker,
                             'vehicle_info': vehicle_info
                         })
                     else:
-                        # speed for existing vehicle but don't show as new detection
                         results.append({
                             'plate': recognized_plate,
                             'speed': speed,
@@ -111,9 +110,9 @@ class ResultLogger:
         vehicle_id = result['vehicle_id']
         vehicle_info = result['vehicle_info']
         
-        # Only log if it's a new detection
+        # logging for new detection
         if result['is_new_detection']:
-            # Add to unique plates set
+            # Adding to unique plates set
             self.unique_plates.add(plate)
             self.total_detections += 1
             
@@ -168,14 +167,14 @@ if __name__ == "__main__":
     findPlate = PlateFinder(minPlateArea=1500, maxPlateArea=25000)
     speed_calculator = AdvancedSpeedCalculator(
         fps=30, 
-        reference_distance_meters=30,  # Assume 30 meters reference
-        reference_pixels=200  # Calibration can be adjusted
+        reference_distance_meters=30,  # Assuming 30 meters reference
+        reference_pixels=200 
     )
     
     # Initializing unique vehicle tracker
     vehicle_tracker = UniqueVehicleTracker(
         similarity_threshold=0.8,  # 80% similarity to consider same vehicle
-        min_speed_samples=3        # Need 3 speed samples for final speed
+        min_speed_samples=3        #speed samples for final speed calculation
     )
     
     cap = cv2.VideoCapture('Automatic Number Plate Recognition (ANPR) _ Vehicle Number Plate Recognition (1).mp4')
@@ -183,13 +182,12 @@ if __name__ == "__main__":
     # result logger
     logger = ResultLogger("results")
     
-    #  video properties for better performance
     fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_delay = int(1000 / fps) if fps > 0 else 33  # milliseconds between frames
+    frame_delay = int(1000 / fps) if fps > 0 else 33 
     
-    print(f"🎥 Video FPS: {fps}, Frame delay: {frame_delay}ms")
-    print(f"📁 Results will be saved to: {logger.output_dir}/")
-    print("🚀 Starting ANPR processing...")
+    print(f"Video FPS: {fps}, Frame delay: {frame_delay}ms")
+    print(f"Results will be saved to: {logger.output_dir}/")
+    print("Starting ANPR processing...")
     print("Controls: 'q' to quit, 's' to skip frames faster")
     print("=" * 60)
 
@@ -240,16 +238,16 @@ if __name__ == "__main__":
                            (vx, vy - 35), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
                 
                 # Printing new detection
-                print(f"🆕 NEW VEHICLE #{vehicle_id:2d} | {plate:12} | Frame {frame_count:4d} | {vehicle_info['speed_status']}")
+                print(f" NEW VEHICLE #{vehicle_id:2d} | {plate:12} | Frame {frame_count:4d} | {vehicle_info['speed_status']}")
                 
                 # individual plate image for new detections
                 cv2.imshow(f'Vehicle #{vehicle_id} - {plate}', plate_img)
             
-            #  speed for existing vehicles (but don't show visually)
+            #  speed for existing vehicles
             elif speed is not None:
                 final_speed = vehicle_info.get('final_speed')
                 if final_speed:
-                    print(f"🔄 Vehicle #{vehicle_id:2d} | {plate:12} | Final Speed: {final_speed} km/h")
+                    print(f" Vehicle #{vehicle_id:2d} | {plate:12} | Final Speed: {final_speed} km/h")
         
         # frame info to display
         cv2.putText(display_img, f"Frame: {frame_count}", 
@@ -286,19 +284,19 @@ if __name__ == "__main__":
     summary = logger.save_summary()
     
     print("\n" + "=" * 70)
-    print("🎉 VIDEO PROCESSING COMPLETED!")
+    print(" VIDEO PROCESSING COMPLETED!")
     print("=" * 70)
-    print(f"📊 FINAL STATISTICS:")
+    print(f" FINAL STATISTICS:")
     print(f"   • Total Frames Processed: {frame_count}")
     print(f"   • Unique Vehicles Detected: {vehicle_summary['total_unique_vehicles']}")
     print(f"   • Vehicles with Speed Data: {vehicle_summary['vehicles_with_speed']}")
     print(f"   • Detection Rate: {vehicle_summary['total_unique_vehicles']/frame_count*100:.2f}% efficiency")
     
-    print(f"\n📁 RESULTS SAVED TO:")
+    print(f"\n RESULTS SAVED TO:")
     print(f"   • Detailed CSV: {summary['files_created']['detailed_results']}")
     print(f"   • Summary JSON: {summary['files_created']['summary']}")
     
-    print(f"\n🚗 DETECTED VEHICLES:")
+    print(f"\n DETECTED VEHICLES:")
     print("-" * 70)
     print(f"{'ID':>3} | {'Plate Number':^12} | {'Speed (km/h)':^12} | {'Status':^20}")
     print("-" * 70)
